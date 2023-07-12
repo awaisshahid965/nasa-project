@@ -1,6 +1,6 @@
-const { launches, getAllLaunches } = require("../../models/launches.model");
+const { getAllLaunches } = require("../../models/launches.model");
 
-function httpGetAllLaunches(req, res) {
+function httpGetAllLaunches(_, res) {
   return res.status(200).json(getAllLaunches());
 }
 
