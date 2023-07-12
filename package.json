@@ -7,9 +7,12 @@
     "install-server": "cd server && npm install",
     "install-client": "cd client && npm install",
     "install": "npm run install-server && npm run install-client",
-    "server": "cd server && npm run watch",
+    "watch-server": "cd server && npm run watch",
+    "start-server": "cd server && npm run start",
     "client": "cd client && npm start",
-    "start": "npm-run-all --parallel server client"
+    "build-client": "cd client && npm run build",
+    "watch": "npm-run-all --parallel watch-server client",
+    "deploy": "npm run build-client && npm run start-server"
   },
   "keywords": [],
   "author": "",
