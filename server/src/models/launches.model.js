@@ -7,7 +7,7 @@ const launch = {
   mission: "Kepler Exploraion X",
   rocket: "Explorer IS1",
   launchDate: new Date("December 27, 2030"),
-  destination: "Kepler-1652 b",
+  target: "Kepler-1652 b",
   customer: ["ZTM", "NASA"],
   upcoming: true,
   success: true,
