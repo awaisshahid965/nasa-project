@@ -16,8 +16,8 @@ app.use(
 app.use(morgan("combined"));
 app.use(express.static(pathToPublicFolder));
 app.use(express.json());
-app.use(planetRouter);
-app.use(launchesRouter);
+app.use("/planets", planetRouter);
+app.use("/launches", launchesRouter);
 
 app.get("/*", (_, res) => {
   res.sendFile(path.join(pathToPublicFolder, "index.html"));
