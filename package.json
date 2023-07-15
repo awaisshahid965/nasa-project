@@ -9,10 +9,12 @@
     "install": "npm run install-server && npm run install-client",
     "watch-server": "cd server && npm run watch",
     "start-server": "cd server && npm run start",
+    "start-cluster": "cd server && npm run cluster",
     "client": "cd client && npm start",
     "build-client": "cd client && npm run build",
     "watch": "npm-run-all --parallel watch-server client",
-    "deploy": "npm run build-client && npm run start-server"
+    "deploy": "npm run build-client && npm run start-server",
+    "deploy-cluster": "npm run build-client && npm run start-cluster"
   },
   "keywords": [],
   "author": "",
