@@ -1,6 +1,9 @@
+const Launch = require("./launches.mongo");
+const { isPlanetExists } = require("./planets.model");
+
 const launches = new Map();
 
-let latestFlightNumber = 100;
+let DEFAULT_FLIGHT_NUMBER = 100;
 
 const launch = {
   flightNumber: 100,
@@ -13,39 +16,67 @@ const launch = {
   success: true,
 };
 
-launches.set(launch.flightNumber, launch);
+saveLaunch(launch);
 
-function existsLaunchWithId(launchId) {
-  return launches.has(launchId);
+async function existsLaunchWithId(launchId) {
+  return await Launch.exists({ flightNumber: launchId });
 }
 
-function getAllLaunches() {
-  return Array.from(launches.values());
+async function getAllLaunches() {
+  return await Launch.find({}, "-_id -__v");
 }
 
-function addNewLaunch(launch) {
-  latestFlightNumber++;
+async function saveLaunch(launch) {
+  const hasPlanetExists = await isPlanetExists(launch.target);
+  if (!hasPlanetExists) {
+    throw new Error("No Matching Planet Found");
+  }
+  return await Launch.findOneAndUpdate(
+    {
+      flightNumber: launch.flightNumber,
+    },
+    launch,
+    {
+      upsert: true,
+    }
+  );
+}
+
+async function getLatestFlightNumber() {
+  const latestLaunch = await Launch.findOne().sort("-flightNumber");
+  return latestLaunch?.flightNumber ?? DEFAULT_FLIGHT_NUMBER;
+}
+
+async function seheduleNewLaunch(launch) {
+  const newFlightNumber = (await getLatestFlightNumber()) + 1;
   const newLaunch = {
     ...launch,
-    flightNumber: latestFlightNumber,
+    flightNumber: newFlightNumber,
     customers: ["ZTM", "NASA"],
     upcoming: true,
     success: true,
   };
-  launches.set(latestFlightNumber, newLaunch);
+  await saveLaunch(newLaunch);
+
   return newLaunch;
 }
 
-function abortLaunchById(launchId) {
-  const aborted = launches.get(launchId);
-  aborted.upcoming = false;
-  aborted.success = false;
-  return aborted;
+async function abortLaunchById(launchId) {
+  const aborted = await Launch.updateOne(
+    {
+      flightNumber: launchId,
+    },
+    {
+      upcoming: false,
+      success: false,
+    }
+  );
+  return aborted.modifiedCount === 1;
 }
 
 module.exports = {
   existsLaunchWithId,
   getAllLaunches,
-  addNewLaunch,
+  seheduleNewLaunch,
   abortLaunchById,
 };

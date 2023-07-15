@@ -45,6 +45,10 @@ async function getAllPlanets() {
   return await Planet.find({}, "keplerName -_id");
 }
 
+async function isPlanetExists(planetName) {
+  return await Planet.exists({ keplerName: planetName });
+}
+
 async function savePlanet(planet) {
   try {
     await Planet.updateOne(
@@ -66,4 +70,5 @@ async function savePlanet(planet) {
 module.exports = {
   loadPlanetsData,
   getAllPlanets,
+  isPlanetExists,
 };
