@@ -3,22 +3,7 @@ const axios = require("axios");
 const Launch = require("./launches.mongo");
 const { isPlanetExists } = require("./planets.model");
 
-const launches = new Map();
-
 let DEFAULT_FLIGHT_NUMBER = 100;
-
-const launch = {
-  flightNumber: 100, // flight_number
-  mission: "Kepler Exploraion X", //name
-  rocket: "Explorer IS1", //rocket.name
-  launchDate: new Date("December 27, 2030"), //date_local
-  target: "Kepler-1652 b", //not applicable
-  customers: ["ZTM", "NASA"], //payloads.customers for each customers
-  upcoming: true, //upcoming
-  success: true, //success
-};
-
-saveLaunch(launch);
 
 const SPACEX_API_URL = "https://api.spacexdata.com/v4/launches/query";
 
@@ -71,10 +56,12 @@ async function populateLaunches() {
     throw new Error("Launch data download failed");
   }
   const spaceXLaunchDataArray = response.data.docs;
+  const allSpaceXLaunchesPromiseArr = [];
   spaceXLaunchDataArray.forEach(async (spaceXLaunch) => {
     const launchData = getLaunchDataFromSpaceXLaunch(spaceXLaunch);
-    await saveLaunch(launchData);
+    allSpaceXLaunchesPromiseArr.push(saveLaunch(launchData));
   });
+  await Promise.all(allSpaceXLaunchesPromiseArr);
 }
 
 async function loadLaunchData() {
@@ -97,8 +84,11 @@ async function existsLaunchWithId(launchId) {
   return await findLaunch({ flightNumber: launchId });
 }
 
-async function getAllLaunches() {
-  return await Launch.find({}, "-_id -__v");
+async function getAllLaunches(skip, limit) {
+  return await Launch.find({}, "-_id -__v")
+    .sort({ flightNumber: 1 })
+    .skip(skip)
+    .limit(limit);
 }
 
 async function saveLaunch(launch) {
